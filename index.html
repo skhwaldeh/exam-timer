@@ -1,0 +1,235 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Stylish Exam Timer with Credentials</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #6EE7B7, #3B82F6);
+      color: #ffffff;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+      height: 100vh; overflow: hidden;
+    }
+    #currentDate { font-size: 2.5rem; margin-top: 1rem; }
+    #currentTime { font-size: 3.5rem; font-weight: 600; text-shadow: 2px 2px 6px rgba(0,0,0,0.4); }
+    #countdown { font-size: 5rem; font-weight: 600; margin: 1rem 0; text-shadow: 2px 2px 6px rgba(0,0,0,0.4); }
+    .controls { display: flex; gap: 1rem; margin: 1.5rem 0; }
+    .controls button {
+      padding: 1rem 2rem; font-size: 1.2rem; font-weight: 600;
+      border: none; border-radius: 8px; cursor: pointer;
+      background: rgba(255,255,255,0.2); color: #ffffff;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .controls button:hover { background: rgba(255,255,255,0.4); transform: translateY(-2px); }
+    #selectedSlot { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    #credentialInput {
+      margin-top: 1rem; text-align: center;
+    }
+    #credentialInput input {
+      padding: 0.5rem; margin: 0.2rem;
+      border: none; border-radius: 4px;
+      font-size: 1rem;
+    }
+    #credentialInput button {
+      padding: 0.5rem 1rem; font-size: 1rem;
+      border: none; border-radius: 4px; cursor: pointer;
+      background: #F472B6; color: #ffffff;
+      transition: background 0.3s;
+    }
+    #credentialInput button:hover { background: #D946EF; }
+    #sidebar {
+      position: fixed; top: 20px; right: 20px;
+      width: 260px; max-height: 80vh; overflow-y: auto;
+      background: rgba(255,255,255,0.9); color: #0d1b2a;
+      border-radius: 8px; padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    #sidebar h2 { font-size: 1.4rem; margin-bottom: 0.5rem; }
+    .credential {
+      margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ccc;
+    }
+    .credential .label { font-size: 1.1rem; font-weight: 600; }
+    .credential .pass { font-size: 1.3rem; font-weight: bold; margin-top: 0.2rem; }
+    .popup {
+      position: fixed; top: 20px; left:50%; transform: translateX(-50%);
+      background: #F472B6; color: #ffffff; padding: 0.8rem 1.5rem; border-radius: 6px;
+      font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      animation: fadeOut 5s forwards; z-index: 1000;
+    }
+    @keyframes fadeOut { 0% { opacity:1; } 80% { opacity:1;} 100% { opacity:0;} }
+    #overlay {
+      display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+      background: rgba(0,0,0,0.85); color: #ffffff; font-size: 3rem; font-weight:600;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      padding: 2rem; z-index: 2000;
+    }
+    #overlay button {
+      margin-top: 1.5rem; padding: 0.8rem 1.5rem; font-size: 1rem; font-weight:600;
+      border:none; border-radius:6px; cursor:pointer; background: #10B981; color:#ffffff;
+      transition: background 0.3s;
+    }
+    #overlay button:hover { background: #059669; }
+    footer {
+      position: absolute; bottom:10px; font-size:0.9rem; opacity:0.7;
+    }
+    footer a { color:#ffffff; text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div id="currentDate">--/--/----</div>
+  <div id="currentTime">--:--:--</div>
+  <div class="controls">
+    <button id="slot1">10:00 – 12:00</button>
+    <button id="slot2">14:00 – 16:00</button>
+  </div>
+  <div id="selectedSlot">Selected: None</div>
+  <div id="countdown">--:--:--</div>
+
+  <div id="credentialInput">
+    <h2>Enter Exam Credentials</h2>
+    <input type="text" id="examNameInput" placeholder="Exam Name">
+    <input type="text" id="examPasswordInput" placeholder="Password">
+    <button id="addCredentialBtn">Add</button>
+  </div>
+
+  <div id="sidebar">
+    <h2>Exam Credentials</h2>
+    <div id="credentialList"></div>
+  </div>
+
+  <div id="overlay">
+    <div>
+      Time is up!<br>Please submit your exam.
+      <br><button id="closeOverlay">Close</button>
+    </div>
+  </div>
+
+  <div id="popupContainer"></div>
+  <audio id="beep" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+  <footer>Idea by Dr Sufian Khwaldeh – Inspired by <a href="https://time.is/" target="_blank">Time.is</a></footer>
+
+  <script>
+    (function(){
+      const slot1StartHour=10, slot1EndHour=12, slot2StartHour=14, slot2EndHour=16;
+      let offsetMs=0, startTime=null, durationSec=0, active=false;
+      let reminders={20:false,15:false,10:false,5:false,constant:false};
+
+      const currentDateEl=document.getElementById('currentDate');
+      const currentTimeEl=document.getElementById('currentTime');
+      const countdownEl=document.getElementById('countdown');
+      const overlayEl=document.getElementById('overlay');
+      const popupContainer=document.getElementById('popupContainer');
+      const beep=document.getElementById('beep');
+      const selectedSlotEl=document.getElementById('selectedSlot');
+
+      const examNameInput=document.getElementById('examNameInput');
+      const examPasswordInput=document.getElementById('examPasswordInput');
+      const addCredentialBtn=document.getElementById('addCredentialBtn');
+      const credentialList=document.getElementById('credentialList');
+
+      async function syncTime(){
+        try{
+          const res=await fetch('https://worldtimeapi.org/api/timezone/Asia/Dubai');
+          const data=await res.json();
+          offsetMs=new Date(data.datetime).getTime()-Date.now();
+        }catch(e){}
+      }
+
+      function getNow(){ return new Date(Date.now()+offsetMs); }
+
+      function updateCurrent(){
+        const now=getNow();
+        currentTimeEl.textContent=now.toLocaleTimeString('en-GB');
+        currentDateEl.textContent=now.toLocaleDateString('en-GB');
+      }
+
+      function showPopup(msg){
+        const p=document.createElement('div');
+        p.className='popup'; p.textContent=msg;
+        popupContainer.appendChild(p);
+        beep.play();
+        setTimeout(()=>p.remove(),5000);
+      }
+
+      function startTimer(label, secs){
+        startTime=getNow();
+        durationSec=secs;
+        active=true;
+        reminders={20:false,15:false,10:false,5:false,constant:false};
+        overlayEl.style.display='none';
+        selectedSlotEl.textContent='Selected: '+label;
+      }
+
+      document.getElementById('slot1').onclick=function(){
+        startTimer('10:00 – 12:00',3600*(slot1EndHour-slot1StartHour));
+      };
+      document.getElementById('slot2').onclick=function(){
+        startTimer('14:00 – 16:00',3600*(slot2EndHour-slot2StartHour));
+      };
+      document.getElementById('closeOverlay').onclick=function(){
+        overlayEl.style.display='none';
+      };
+
+      addCredentialBtn.onclick=function(){
+        const name=examNameInput.value.trim();
+        const pass=examPasswordInput.value.trim();
+        if(!name||!pass)return;
+        const div=document.createElement('div');
+        div.className='credential';
+        div.innerHTML=`<div class="label">${name}</div><div class="pass">${pass}</div>`;
+        credentialList.appendChild(div);
+        examNameInput.value=''; examPasswordInput.value='';
+      };
+
+      function checkAutoStart(){
+        const now=getNow();
+        const y=now.getFullYear(), m=now.getMonth(), d=now.getDate();
+        const slot1Start=new Date(y,m,d,slot1StartHour), slot1End=new Date(y,m,d,slot1EndHour);
+        const slot2Start=new Date(y,m,d,slot2StartHour), slot2End=new Date(y,m,d,slot2EndHour);
+        if(now>=slot1Start && now<slot1End){
+          const secs=Math.floor((slot1End-now)/1000);
+          startTimer('10:00 – 12:00',secs);
+        }else if(now>=slot2Start && now<slot2End){
+          const secs=Math.floor((slot2End-now)/1000);
+          startTimer('14:00 – 16:00',secs);
+        }
+      }
+
+      function tick(){
+        if(!active)return;
+        const now=getNow();
+        let elapsed=Math.floor((now-startTime)/1000);
+        let rem=durationSec-elapsed;
+        if(rem<=0){
+          countdownEl.textContent='00:00:00';
+          overlayEl.style.display='flex';
+          active=false;
+          return;
+        }
+        const mins=Math.ceil(rem/60);
+        [20,15,10,5].forEach(m=>{
+          if(mins===m && !reminders[m]){
+            showPopup(m+' minutes remaining!');
+            reminders[m]=true;
+          }
+        });
+        if(rem<=300 && !reminders.constant){
+          showPopup('Less than 5 minutes left!');
+          reminders.constant=true;
+        }
+        const h=String(Math.floor(rem/3600)).padStart(2,'0');
+        const mStr=String(Math.floor((rem%3600)/60)).padStart(2,'0');
+        const s=String(rem%60).padStart(2,'0');
+        countdownEl.textContent=`${h}:${mStr}:${s}`;
+      }
+
+      syncTime().then(checkAutoStart);
+      setInterval(()=>{ updateCurrent(); tick(); },1000);
+    })();
+  </script>
+</body>
+</html>
