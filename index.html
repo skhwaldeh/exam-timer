@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,36 +6,38 @@
   <title>Exam Timer & Credentials</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* reset & fonts */
+    /* Reset & base */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #6EA7B7, #3B82F6);
+      background: linear-gradient(135deg, #6EE7B7, #3B82F6);
       color: #fff;
       display: flex; flex-direction: column; align-items: center;
       height: 100vh; overflow: hidden; position: relative;
     }
 
-    /* Branding above timers */
+    /* SHIFT: left-offset timer area */
+    #timerContainer {
+      margin-left: -80px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* Branding */
     #branding {
       display: flex; align-items: center; gap: 1rem;
       margin-top: 1.5rem;
     }
-    #branding img {
-      height: 80px;
-    }
+    #branding img { height: 100px; }
     #branding .univ-name {
       font-size: 2rem; font-weight: 600;
     }
 
-    /* Top-left burger */
+    /* Burger (settings) */
     #burgerBtn {
       position: fixed; top: 20px; left: 20px;
       font-size: 2rem; background: none; border: none;
       color: #fff; cursor: pointer; z-index: 1100;
     }
-
-    /* Settings panel */
     #settingsPanel {
       position: fixed; top: 0; left: -300px;
       width: 280px; height: 100%; padding: 1.5rem;
@@ -49,9 +52,7 @@
       width: 100%; padding: 0.4rem; border: none; border-radius: 4px;
       margin-bottom: 0.8rem;
     }
-    #settingsPanel .reminders {
-      margin-bottom: 1rem; font-size: 0.9rem;
-    }
+    #settingsPanel .reminders { margin-bottom: 1rem; font-size: 0.9rem; }
     #settingsPanel .reminders label {
       display: inline-block; margin-right: 0.8rem; cursor: pointer;
     }
@@ -60,18 +61,20 @@
       border: none; border-radius: 6px; background: #10B981;
       cursor: pointer;
     }
-    #settingsPanel button#setSessionBtn:hover {
-      background: #059669;
-    }
+    #settingsPanel button#setSessionBtn:hover { background: #059669; }
 
-    /* Time displays */
+    /* Timer displays */
     #currentDate { font-size: 2rem; margin-top: 0.8rem; }
-    #currentTime { font-size: 3rem; font-weight: 600; margin-top: 0.2rem;
-                   text-shadow: 1px 1px 4px rgba(0,0,0,0.4); }
+    #currentTime {
+      font-size: 3rem; font-weight: 600; margin-top: 0.2rem;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
     #examTypeDisplay { font-size: 1.2rem; margin-top: 0.4rem; }
     #sessionInfo { font-size: 1.2rem; margin-top: 0.6rem; }
-    #countdown { font-size: 4rem; font-weight: 600; margin: 1rem 0;
-                 text-shadow: 1px 1px 4px rgba(0,0,0,0.4); }
+    #countdown {
+      font-size: 4rem; font-weight: 600; margin: 1rem 0;
+      text-shadow: 1px 1px 4px rgba(0,0,0,0.4);
+    }
     #halfTimeBanner {
       display: none;
       background: #FBBF24; color: #0d1b2a;
@@ -80,16 +83,17 @@
       z-index: 1050;
     }
 
-    /* Popup reminders (15s) */
+    /* Popup reminders */
     #popupContainer .popup {
       position: fixed; top: 20px; left:50%; transform: translateX(-50%);
       background: #F472B6; color: #fff; padding: 0.8rem 1.2rem;
-      border-radius: 6px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      border-radius: 6px; font-weight: 600;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       animation: fadeOut 15s forwards; z-index: 1200;
     }
     @keyframes fadeOut { 0%{opacity:1}80%{opacity:1}100%{opacity:0} }
 
-    /* Overlay at end */
+    /* End-of-time overlay */
     #overlay {
       display: none; position: fixed; top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.85); color: #fff;
@@ -103,13 +107,14 @@
     }
     #overlay button:hover { background: #059669; }
 
-    /* Exam credentials sidebar (wider) */
+    /* Credentials sidebar (even wider) */
     #sidebar {
       position: fixed; top: 20px; right: 20px;
-      width: 440px; /* further expanded */
+      width: 440px;
       max-height: 80vh; overflow-y: auto;
       background: rgba(255,255,255,0.9); color: #0d1b2a;
-      border-radius: 8px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      border-radius: 8px; padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       z-index: 1050;
     }
     #sidebar h2 { font-size: 1.4rem; margin-bottom:0.5rem; }
@@ -140,7 +145,7 @@
     }
     .fab:hover { background:#2563EB; }
 
-    /* Modal for credentials (no more type field) */
+    /* Modal (no type field) */
     .modal {
       display:none; position: fixed; top:0; left:0; width:100%; height:100%;
       background:rgba(0,0,0,0.6); align-items:center; justify-content:center;
@@ -156,65 +161,65 @@
     }
 
     footer {
-      position: absolute; bottom:13px; font-size:0.9rem; opacity:0.7;
+      position: absolute; bottom:15px; font-size:0.9rem; opacity:0.7;
     }
     footer a { color:#fff; text-decoration:underline; }
   </style>
 </head>
 
 <body>
-  <!-- Branding -->
-  <div id="branding">
-    <!-- update src if you rename the file -->
-    <img src="logo.png" alt="University of Fujairah Logo">
-    <div class="univ-name">University of Fujairah</div>
-  </div>
-
-  <!-- Burger menu -->
-  <button id="burgerBtn">☰</button>
-  <div id="settingsPanel">
-    <h2>Session Settings</h2>
-    <label for="startTimeInput">Start Time</label>
-    <input id="startTimeInput" type="time" value="10:00">
-    <label for="endTimeInput">End Time</label>
-    <input id="endTimeInput" type="time" value="12:00">
-
-    <label for="examTypeSelect">Exam Type</label>
-    <select id="examTypeSelect">
-      <option>Quiz</option>
-      <option>Mid Term Exam</option>
-      <option>Final Exam</option>
-    </select>
-
-    <div class="reminders">
-      <span>Reminders:</span><br>
-      <label><input type="checkbox" value="20" checked> 20 min</label>
-      <label><input type="checkbox" value="15" checked> 15 min</label>
-      <label><input type="checkbox" value="10" checked> 10 min</label>
-      <label><input type="checkbox" value="5"  checked> 5 min</label>
-      <label><input type="checkbox" value="2"  checked> 2 min</label>
+  <div id="timerContainer">
+    <!-- Branding -->
+    <div id="branding">
+      <img src="logo.png" alt="University of Fujairah Logo">
+      <div class="univ-name">University of Fujairah</div>
     </div>
 
-    <button id="setSessionBtn">Set Session</button>
+    <!-- Burger & Settings -->
+    <button id="burgerBtn">☰</button>
+    <div id="settingsPanel">
+      <h2>Session Settings</h2>
+      <label for="startTimeInput">Start Time</label>
+      <input id="startTimeInput" type="time" value="10:00">
+      <label for="endTimeInput">End Time</label>
+      <input id="endTimeInput" type="time" value="12:00">
+
+      <label for="examTypeSelect">Exam Type</label>
+      <select id="examTypeSelect">
+        <option>Quiz</option>
+        <option>Mid Term Exam</option>
+        <option>Final Exam</option>
+      </select>
+
+      <div class="reminders">
+        <span>Reminders:</span><br>
+        <label><input type="checkbox" value="20" checked> 20 min</label>
+        <label><input type="checkbox" value="15" checked> 15 min</label>
+        <label><input type="checkbox" value="10" checked> 10 min</label>
+        <label><input type="checkbox" value="5"  checked> 5 min</label>
+        <label><input type="checkbox" value="2"  checked> 2 min</label>
+      </div>
+      <button id="setSessionBtn">Set Session</button>
+    </div>
+
+    <!-- Time & Countdown -->
+    <div id="currentDate">--/--/----</div>
+    <div id="currentTime">--:--:--</div>
+    <div id="examTypeDisplay">Exam Type: None</div>
+    <div id="sessionInfo">No session set</div>
+    <div id="countdown">--:--:--</div>
+    <div id="halfTimeBanner">
+      Students who have finished may submit their exam and leave now.
+    </div>
   </div>
 
-  <!-- Time & countdown -->
-  <div id="currentDate">--/--/----</div>
-  <div id="currentTime">--:--:--</div>
-  <div id="examTypeDisplay">Exam Type: None</div>
-  <div id="sessionInfo">No session set</div>
-  <div id="countdown">--:--:--</div>
-  <div id="halfTimeBanner">
-    Students who have finished may submit their exam and leave now.
-  </div>
-
-  <!-- Right-side credentials -->
+  <!-- Credentials Sidebar -->
   <div id="sidebar">
     <h2>Exam Credentials</h2>
     <div id="credentialList"></div>
   </div>
 
-  <!-- Add/Edit modal -->
+  <!-- Add/Edit Modal -->
   <div id="credModal" class="modal">
     <div class="modal-content">
       <span id="closeModal" class="close">×</span>
@@ -225,10 +230,10 @@
     </div>
   </div>
 
-  <!-- Floating Add button -->
+  <!-- Floating Add Button -->
   <button id="fabAdd" class="fab">＋</button>
 
-  <!-- Popups & overlay -->
+  <!-- Popups & Overlay -->
   <div id="popupContainer"></div>
   <div id="overlay">
     <div>
@@ -238,30 +243,40 @@
   </div>
 
   <audio id="beep" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
-
-  <footer><h3><b>Idea by Dr Sufian Khwaldeh</b></h3></footer>
+  <footer>Idea by Dr Sufian Khwaldeh</footer>
 
   <script>
   (function(){
+    // Time sync
+    let offsetMs = 0;
+    async function syncTime(){
+      try {
+        const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Dubai');
+        const data = await res.json();
+        offsetMs = new Date(data.datetime).getTime() - Date.now();
+      } catch {}
+    }
+    function getNow(){ return new Date(Date.now() + offsetMs); }
+
     // Elements
-    const burgerBtn      = document.getElementById('burgerBtn');
-    const settingsPanel  = document.getElementById('settingsPanel');
-    const setSessionBtn  = document.getElementById('setSessionBtn');
-    const startInput     = document.getElementById('startTimeInput');
-    const endInput       = document.getElementById('endTimeInput');
-    const examTypeSel    = document.getElementById('examTypeSelect');
+    const burgerBtn     = document.getElementById('burgerBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const setSessionBtn = document.getElementById('setSessionBtn');
+    const startInput    = document.getElementById('startTimeInput');
+    const endInput      = document.getElementById('endTimeInput');
+    const examTypeSel   = document.getElementById('examTypeSelect');
     const reminderChecks = Array.from(settingsPanel.querySelectorAll('.reminders input'));
 
-    const currentDateEl  = document.getElementById('currentDate');
-    const currentTimeEl  = document.getElementById('currentTime');
-    const examTypeDisp   = document.getElementById('examTypeDisplay');
-    const sessionInfoEl  = document.getElementById('sessionInfo');
-    const countdownEl    = document.getElementById('countdown');
-    const halfBanner     = document.getElementById('halfTimeBanner');
-    const popupContainer = document.getElementById('popupContainer');
-    const overlayEl      = document.getElementById('overlay');
-    const closeOverlay   = document.getElementById('closeOverlay');
-    const beep           = document.getElementById('beep');
+    const currentDateEl = document.getElementById('currentDate');
+    const currentTimeEl = document.getElementById('currentTime');
+    const examTypeDisp  = document.getElementById('examTypeDisplay');
+    const sessionInfoEl = document.getElementById('sessionInfo');
+    const countdownEl   = document.getElementById('countdown');
+    const halfBanner    = document.getElementById('halfTimeBanner');
+    const popupContainer= document.getElementById('popupContainer');
+    const overlayEl     = document.getElementById('overlay');
+    const closeOverlay  = document.getElementById('closeOverlay');
+    const beep          = document.getElementById('beep');
 
     // Credentials
     const fabAdd        = document.getElementById('fabAdd');
@@ -274,145 +289,163 @@
     const credList      = document.getElementById('credentialList');
     let editingDiv      = null;
 
-    // Time sync
-    let offsetMs = 0;
-    async function syncTime(){
-      try{
-        const res = await fetch('https://worldtimeapi.org/api/timezone/Asia/Dubai');
-        const data= await res.json();
-        offsetMs = new Date(data.datetime).getTime() - Date.now();
-      } catch{}
-    }
-    function getNow(){ return new Date(Date.now() + offsetMs); }
-
-    // Display date & time
+    // Show current date/time
     function updateCurrent(){
       const now = getNow();
       currentTimeEl.textContent = now.toLocaleTimeString('en-GB');
       currentDateEl.textContent = now.toLocaleDateString('en-GB');
     }
 
-    // Countdown & reminders
+    // Reminder & countdown logic
     let startTime= null, durationSec=0, active=false;
-    let reminders={}, reminderTimes=[], halfTimeTriggered=false;
+    let reminders = {}, reminderTimes = [], halfTimeTriggered = false;
+
     function showPopup(msg){
       const p = document.createElement('div');
       p.className = 'popup';
       p.textContent = msg;
       popupContainer.appendChild(p);
-      beep.currentTime=0; beep.play();
-      setTimeout(()=>p.remove(),15000);
-    }
-    function applySessionSettings(){
-      const now=getNow();
-      const [sh,sm]=startInput.value.split(':').map(Number);
-      const [eh,em]=endInput.value.split(':').map(Number);
-      const end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),eh,em);
-      startTime=now;
-      durationSec=Math.floor((end-now)/1000);
-      if(durationSec<0) durationSec=0;
-      active=true;
-      reminders={}; halfTimeTriggered=false;
-      halfBanner.style.display='none';
-      reminderTimes=reminderChecks.filter(ch=>ch.checked).map(ch=>Number(ch.value));
-      const type=examTypeSel.value;
-      examTypeDisp.textContent=`Exam Type: ${type}`;
-      sessionInfoEl.textContent=`Session: ${startInput.value} – ${endInput.value}`;
-      overlayEl.style.display='none';
-    }
-    function tick(){
-      if(!active) return;
-      const now=getNow(), elapsed=Math.floor((now-startTime)/1000);
-      let rem=durationSec-elapsed;
-      if(rem<=0){
-        countdownEl.textContent='00:00:00'; active=false;
-        overlayEl.style.display='flex'; return;
-      }
-      if(!halfTimeTriggered && elapsed>=durationSec/2){
-        halfBanner.style.display='block';
-        setTimeout(()=>halfBanner.style.display='none',60000);
-        halfTimeTriggered=true;
-      }
-      const mins=Math.ceil(rem/60);
-      reminderTimes.forEach(m=>{
-        if(mins===m && !reminders[m]){
-          showPopup(`${m} minutes remaining!`);
-          reminders[m]=true;
-        }
-      });
-      const h=String(Math.floor(rem/3600)).padStart(2,'0');
-      const mStr=String(Math.floor((rem%3600)/60)).padStart(2,'0');
-      const s=String(rem%60).padStart(2,'0');
-      countdownEl.textContent=`${h}:${mStr}:${s}`;
+      beep.currentTime = 0; beep.play();
+      setTimeout(()=> p.remove(), 15000);
     }
 
-    // Credentials CRUD
+    function applySessionSettings(){
+      const now = getNow();
+      const [sh,sm] = startInput.value.split(':').map(Number);
+      const [eh,em] = endInput.value.split(':').map(Number);
+      const end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), eh, em);
+      startTime = now;
+      durationSec = Math.max(0, Math.floor((end - now)/1000));
+      active = true;
+      reminders = {}; halfTimeTriggered = false;
+      halfBanner.style.display = 'none';
+      reminderTimes = reminderChecks.filter(ch=>ch.checked).map(ch=>+ch.value);
+      const type = examTypeSel.value;
+      examTypeDisp.textContent = `Exam Type: ${type}`;
+      sessionInfoEl.textContent = `Session: ${startInput.value} – ${endInput.value}`;
+      overlayEl.style.display = 'none';
+    }
+
+    function tick(){
+      if (!active) return;
+      const now = getNow();
+      const elapsed = Math.floor((now - startTime)/1000);
+      let rem = durationSec - elapsed;
+      if (rem <= 0){
+        countdownEl.textContent = '00:00:00';
+        active = false;
+        overlayEl.style.display = 'flex';
+        return;
+      }
+      if (!halfTimeTriggered && elapsed >= durationSec/2){
+        halfBanner.style.display = 'block';
+        setTimeout(()=> halfBanner.style.display = 'none', 60000);
+        halfTimeTriggered = true;
+      }
+      const mins = Math.ceil(rem/60);
+      reminderTimes.forEach(m => {
+        if (mins === m && !reminders[m]){
+          showPopup(`${m} minutes remaining!`);
+          reminders[m] = true;
+        }
+      });
+      const h = String(Math.floor(rem/3600)).padStart(2,'0');
+      const mStr = String(Math.floor((rem%3600)/60)).padStart(2,'0');
+      const s = String(rem%60).padStart(2,'0');
+      countdownEl.textContent = `${h}:${mStr}:${s}`;
+    }
+
+    // Credentials CRUD + persistence
     function openModal(isEdit=false){
-      credModal.style.display='flex';
-      modalTitle.textContent=isEdit?'Edit Exam Credential':'Add Exam Credential';
+      credModal.style.display = 'flex';
+      modalTitle.textContent = isEdit ? 'Edit Exam Credential' : 'Add Exam Credential';
     }
     function closeModalFunc(){
-      credModal.style.display='none'; editingDiv=null;
-      examNameField.value=passField.value='';
+      credModal.style.display = 'none';
+      editingDiv = null;
+      examNameField.value = passField.value = '';
     }
-    function makeCredentialDiv(name,pass){
-      const div=document.createElement('div');
-      div.className='credential';
-      div.innerHTML=`
+    function makeCredentialDiv(name, pass){
+      const div = document.createElement('div');
+      div.className = 'credential';
+      div.innerHTML = `
         <span class="label">${name}</span>
         <span class="pass">${pass}</span>
         <span class="credential-actions">
           <button class="edit-btn">✏️</button>
           <button class="delete-btn">🗑️</button>
         </span>`;
-      div.querySelector('.edit-btn').onclick=()=>{
-        editingDiv=div;
-        examNameField.value=div.querySelector('.label').textContent;
-        passField.value=div.querySelector('.pass').textContent;
+      div.querySelector('.edit-btn').onclick = () => {
+        editingDiv = div;
+        examNameField.value = div.querySelector('.label').textContent;
+        passField.value     = div.querySelector('.pass').textContent;
         openModal(true);
       };
-      div.querySelector('.delete-btn').onclick=()=>{
-        if(editingDiv===div) closeModalFunc();
+      div.querySelector('.delete-btn').onclick = () => {
+        if (editingDiv === div) closeModalFunc();
         div.remove();
+        persistCredentials();
       };
       return div;
     }
+    function persistCredentials(){
+      const arr = [];
+      credList.querySelectorAll('.credential').forEach(div=>{
+        arr.push({
+          name: div.querySelector('.label').textContent,
+          pass: div.querySelector('.pass').textContent
+        });
+      });
+      localStorage.setItem('examCredentials', JSON.stringify(arr));
+    }
+    function loadCredentials(){
+      const stored = localStorage.getItem('examCredentials');
+      if (!stored) return;
+      try {
+        JSON.parse(stored).forEach(item=>{
+          credList.appendChild(makeCredentialDiv(item.name, item.pass));
+        });
+      } catch {}
+    }
 
-    // Listeners
-    burgerBtn.onclick=()=>settingsPanel.classList.toggle('open');
-    document.addEventListener('click',e=>{
-      if(!settingsPanel.contains(e.target)&&e.target!==burgerBtn)
+    // Event listeners
+    burgerBtn.onclick = () => settingsPanel.classList.toggle('open');
+    document.addEventListener('click', e => {
+      if (!settingsPanel.contains(e.target) && e.target !== burgerBtn) {
         settingsPanel.classList.remove('open');
+      }
     });
-    setSessionBtn.onclick=applySessionSettings;
-    closeOverlay.onclick=()=>overlayEl.style.display='none';
+    setSessionBtn.onclick = applySessionSettings;
+    closeOverlay.onclick = () => overlayEl.style.display = 'none';
 
+    fabAdd.onclick     = () => openModal(false);
+    closeModal.onclick = closeModalFunc;
+    saveBtn.onclick    = () => {
+      const name = examNameField.value.trim();
+      const pass = passField.value.trim();
+      if (!name || !pass) return;
+      if (editingDiv){
+        editingDiv.querySelector('.label').textContent = name;
+        editingDiv.querySelector('.pass').textContent  = pass;
+      } else {
+        credList.appendChild(makeCredentialDiv(name, pass));
+      }
+      persistCredentials();
+      closeModalFunc();
+    };
+    window.addEventListener('click', e => {
+      if (e.target === credModal) closeModalFunc();
+    });
+
+    // Initialize
     syncTime().then(()=>{
       updateCurrent();
+      loadCredentials();
       setInterval(()=>{
         updateCurrent();
         tick();
-      },1000);
+      }, 1000);
     });
-
-    fabAdd.onclick=()=>openModal(false);
-    closeModal.onclick=closeModalFunc;
-    saveBtn.onclick=()=>{
-      const name=examNameField.value.trim(),
-            pass=passField.value.trim();
-      if(!name||!pass) return;
-      if(editingDiv){
-        editingDiv.querySelector('.label').textContent=name;
-        editingDiv.querySelector('.pass').textContent=pass;
-      } else {
-        credList.appendChild(makeCredentialDiv(name,pass));
-      }
-      closeModalFunc();
-    };
-    window.addEventListener('click',e=>{
-      if(e.target===credModal) closeModalFunc();
-    });
-
   })();
   </script>
 </body>
